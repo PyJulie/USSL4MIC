@@ -1,0 +1,103 @@
+# Configuration for Ophthalmology Classification Task
+# Based on fundus image datasets
+
+# Dataset Configuration
+dataset:
+  name: "ophthalmology"
+  labeled_data_path: "data/fundus/labeled"
+  unlabeled_data_path: "data/fundus/unlabeled"
+  unknown_domain_path: "data/fundus/unknown_domain"
+  num_classes: 5  # normal, amd, dr, glaucoma, cataract
+  image_size: [224, 224]
+  batch_size: 32
+  num_workers: 4
+
+# Model Configuration
+model:
+  backbone: "resnet50"
+  feature_dim: 2048
+  classifier_dim: 512
+  vae_latent_dim: 128
+  dropout_rate: 0.5
+
+# Training Configuration
+training:
+  epochs: 200
+  learning_rate: 0.001
+  weight_decay: 1e-4
+  scheduler: "cosine"
+  warmup_epochs: 10
+  
+  # SSL Configuration
+  ssl:
+    lambda_consistency: 1.0
+    lambda_entropy: 0.1
+    temperature: 0.5
+    threshold: 0.95
+    
+  # USSL Configuration
+  ussl:
+    lambda_ukc: 1.0
+    lambda_ukd: 1.0
+    lambda_da: 0.1
+    vae_weight: 0.01
+    
+  # Dual-path Outlier Estimation
+  doe:
+    prototype_update_rate: 0.9
+    confidence_threshold: 0.8
+    
+  # Domain Adaptation
+  domain_adaptation:
+    lambda_adv: 0.1
+    discriminator_lr: 0.0002
+
+# Loss Weights
+loss_weights:
+  classification: 1.0
+  consistency: 1.0
+  entropy: 0.1
+  vae_reconstruction: 1.0
+  vae_kl: 0.01
+  adversarial: 0.1
+
+# Augmentation
+augmentation:
+  train:
+    - RandomHorizontalFlip: {p: 0.5}
+    - RandomVerticalFlip: {p: 0.5}
+    - RandomRotate90: {p: 0.5}
+    - Transpose: {p: 0.5}
+    - ShiftScaleRotate: {shift_limit: 0.0625, scale_limit: 0.1, rotate_limit: 45, p: 0.5}
+    - OneOf:
+        - IAAAdditiveGaussianNoise: {loc: 0, scale: (0.01 * 255, 0.05 * 255), p: 1.0}
+        - GaussianNoise: {var_limit: (10.0, 50.0), p: 1.0}
+        - MotionBlur: {blur_limit: 3, p: 1.0}
+        - MedianBlur: {blur_limit: 3, p: 1.0}
+        - Blur: {blur_limit: 3, p: 1.0}
+      p: 0.5
+    - OneOf:
+        - CLAHE: {clip_limit: 2, p: 1.0}
+        - IAASharpen: {alpha: (0.2, 0.5), lightness: (0.5, 1.0), p: 1.0}
+        - IAAEmboss: {alpha: (0.2, 0.5), strength: (0.2, 0.7), p: 1.0}
+        - RandomBrightnessContrast: {brightness_limit: 0.2, contrast_limit: 0.2, p: 1.0}
+      p: 0.5
+    - HueSaturationValue: {hue_shift_limit: 20, sat_shift_limit: 30, val_shift_limit: 20, p: 0.5}
+    - Normalize: {mean: [0.485, 0.456, 0.406], std: [0.229, 0.224, 0.225], max_pixel_value: 255.0, p: 1.0}
+  
+  val:
+    - Normalize: {mean: [0.485, 0.456, 0.406], std: [0.229, 0.224, 0.225], max_pixel_value: 255.0, p: 1.0}
+
+# Logging
+logging:
+  log_dir: "logs"
+  save_freq: 10
+  eval_freq: 5
+  tensorboard: true
+  wandb: false
+
+# Checkpoint
+checkpoint:
+  save_dir: "checkpoints"
+  save_best: true
+  save_last: true 
