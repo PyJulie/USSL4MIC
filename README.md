@@ -60,10 +60,12 @@ The framework supports various medical image datasets:
 If you use this code, please cite the original paper:
 
 ```bibtex
-@article{ju2023universal,
-  title={Universal Semi-Supervised Learning for Medical Image Classification},
+@inproceedings{ju2024universal,
+  title={Universal Semi-supervised Learning for Medical Image Classification},
   author={Ju, Lie and Wu, Yicheng and Feng, Wei and Yu, Zhen and Wang, Lin and Zhu, Zhuoting and Ge, Zongyuan},
-  journal={arXiv preprint arXiv:2304.04059},
-  year={2023}
+  booktitle={International Conference on Medical Image Computing and Computer-Assisted Intervention},
+  pages={355--365},
+  year={2024},
+  organization={Springer}
 }
 ``` 
